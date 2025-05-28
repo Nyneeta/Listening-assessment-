@@ -56,7 +56,7 @@ function App() {
 
   return (
     <div className="container">
-      <h2>English Listening Assessment</h2>
+      <div className="form-heading">English Listening Assessment</div> 
       <NameInput name={name} setName={setName} />
       {questions.map((q) => (
         <AudioQuestion
@@ -77,5 +77,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
