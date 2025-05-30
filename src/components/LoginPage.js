@@ -1,5 +1,13 @@
 import React, { useState } from "react";
+import axios from "axios";
 import "./LoginPage.css";
+
+const allowedUsers = {
+  Nyneeta: "intern",
+  Divya: "lead",
+};
+
+const sheetDBBaseURL = "https://sheetdb.io/api/v1/1bh5u1brz84s5"; // replace with your SheetDB ID
 
 const LoginPage = ({ onLogin }) => {
   const [username, setUsername] = useState("");
@@ -7,17 +15,43 @@ const LoginPage = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username.trim()) {
+
+    // Basic validation
+    if (!username || !password) {
+      alert("Please enter both username and password");
+      return;
+    }
+
+    // Check if username and password match allowed users
+    if (!allowedUsers[username] || allowedUsers[username] !== password) {
+      alert("Invalid username or password");
+      return;
+    }
+
+    try {
+      // Check if user has already submitted in SheetDB
+      const response = await axios.get(`${sheetDBBaseURL}/search?username=${username}`);
+
+      if (response.data && response.data.length > 0) {
+        alert("You have already submitted the test and cannot log in again.");
+       // window.location.href = "/access-blocked";
+        return;
+      }
+
+      // If not submitted yet, proceed
       onLogin(username);
+
       if (rememberMe) {
         localStorage.setItem("rememberedUser", username);
       } else {
         localStorage.removeItem("rememberedUser");
       }
-    } else {
-      alert("Please enter your username");
+
+    } catch (error) {
+      console.error("Error checking submission:", error);
+      alert("An error occurred while checking your submission. Try again.");
     }
   };
 
